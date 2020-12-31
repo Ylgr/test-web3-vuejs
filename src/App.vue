@@ -1,17 +1,19 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+<!--    <HelloWorld msg="Welcome to Your Vue.js App"/>-->
+    <SwapCoin />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+// import HelloWorld from './components/HelloWorld.vue'
+import SwapCoin from './components/SwapCoin.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    SwapCoin
   }
 }
 </script>

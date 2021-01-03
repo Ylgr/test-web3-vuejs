@@ -9,8 +9,7 @@
                 <input type="number"  placeholder="Output DFY"/>
                 <input type="number"  placeholder="Input token"/>
             </label>
-            <button v-on:click="() => this.buyIdoDFY()">Add pair</button>
-            <button v-on:click="() => this.buyIdoDFY()">Add pair</button>
+            <button v-on:click="() => this.addPair()">Add pair</button>
         </div>
         <h1>Your address: {{account}}</h1>
         <h1>Owner address: {{ownerAddress}}</h1>
@@ -28,7 +27,7 @@
                     <th>{{index}}</th>
                     <th>{{item.tokenAddress}}</th>
                     <th>{{item.outputDFYNumber / item.inputTokenNumber}}</th>
-                    <th><button>Buy with this!</button></th>
+                    <th><button v-on:click="() => buyIdoDFY(item.tokenAddress)">Buy with this!</button></th>
                 </tr>
             </tbody>
         </table>
@@ -46,6 +45,30 @@
         bscTestnet: 97
     }
 
+    const erc20TokenAbi = [{
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+            }
+        ],
+        "name": "approve",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }]
     export default {
         name: 'SwapCoin',
         data: function () {
@@ -92,13 +115,20 @@
 
                 this.ownerAddress = await this.buyIdoContract.methods.getOwner().call()
             },
-            buyIdoDFY: function () {
-                this.buyIdoContract.methods.getOwner().call(function(err, res){
-                    //do something with res here
-                    console.log(res); //for example
-                })
+            buyIdoDFY: async function (tokenAddress) {
+                console.log('buying ido')
+                const amount = 1
+                try {
+                    const tokenContract = new this.web3.eth.Contract(erc20TokenAbi, tokenAddress)
+                    const approveResult = await tokenContract.methods.approve('0xE56de856b4212A8bf463af32dAD1B2303863aC7D', amount).send({ from: this.account });
+                    console.log('approveResult: ', approveResult)
+                    const result = await this.buyIdoContract.methods.buyIdo(tokenAddress, amount).send({ from: this.account })
+                    console.log('buy ido result: ', result)
+                } catch (e) {
+                    console.error(e.message)
+                }
             },
-            testContract: function () {
+            addPair: function () {
                 this.buyIdoContract.methods.getOwner().call(function(err, res){
                     this.ownerAddress = res
                     console.log(res); //for example

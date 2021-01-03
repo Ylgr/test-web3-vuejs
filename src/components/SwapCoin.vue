@@ -2,16 +2,36 @@
     <div>
         <button v-if="web3" v-on:click="() => this.getAccount()">Connect with Metamask</button>
         <button disabled>Connect with Binance extension</button>
-        <button v-if="buyIdoContract" v-on:click="() => this.buyIdoDFY()">Buy DFY</button>
-        <button v-if="dfyContract" v-on:click="() => this.testContract()">Test contract</button>
-        <h1>{{account}}</h1>
-        <h1>{{ownerAddress}}</h1>
-        <h1>{{supportTokenExchangeList}}</h1>
-        <ul v-if="supportTokenExchangeList.length">
-            <li :key="index" v-for="(item, index) in supportTokenExchangeList">
-                {{index}} - {{item.tokenAddress}} - {{item.outputDFYNumber}} - {{item.inputTokenNumber}}
-            </li>
-        </ul>
+        <br/>
+        <div v-if="ownerAddress === account">
+            <label>
+                <input type="text"  placeholder="address token"/>
+                <input type="number"  placeholder="Output DFY"/>
+                <input type="number"  placeholder="Input token"/>
+            </label>
+            <button v-on:click="() => this.buyIdoDFY()">Add pair</button>
+            <button v-on:click="() => this.buyIdoDFY()">Add pair</button>
+        </div>
+        <h1>Your address: {{account}}</h1>
+        <h1>Owner address: {{ownerAddress}}</h1>
+
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Token address</th>
+                    <th scope="col">DFY for each token</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr :key="index" v-for="(item, index) in balanceExchangeValue">
+                    <th>{{index}}</th>
+                    <th>{{item.tokenAddress}}</th>
+                    <th>{{item.outputDFYNumber / item.inputTokenNumber}}</th>
+                    <th><button>Buy with this!</button></th>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </template>
 
@@ -55,11 +75,6 @@
             }
             this.web3 = web3
         },
-        computed: {
-            supportTokenExchangeList: function() {
-                return this.balanceExchangeValue;
-            }
-        },
         methods: {
             getAccount: async function () {
                 const accounts = await this.web3.eth.getAccounts()
@@ -74,6 +89,8 @@
                 })
 
                 this.getSupportTokens()
+
+                this.ownerAddress = await this.buyIdoContract.methods.getOwner().call()
             },
             buyIdoDFY: function () {
                 this.buyIdoContract.methods.getOwner().call(function(err, res){
@@ -89,18 +106,17 @@
             },
             getSupportTokens: function () {
                 const buyIdoContract = this.buyIdoContract
+                const self = this
                 buyIdoContract.methods.getTokenSupport().call(function(err, res){
-                    let balanceExchangeValue = []
                     res.forEach((tokenAddress) => {
                         buyIdoContract.methods.exchangeValues(tokenAddress).call(function(err, res){
-                            balanceExchangeValue.push({
+                            Vue.set(self.balanceExchangeValue, self.balanceExchangeValue.length, {
                                 tokenAddress: tokenAddress,
                                 outputDFYNumber: res.outputDFYNumber,
                                 inputTokenNumber: res.inputTokenNumber
                             })
                         })
                     })
-                    Vue.set(this, 'balanceExchangeValue', balanceExchangeValue);
                 })
             }
         }

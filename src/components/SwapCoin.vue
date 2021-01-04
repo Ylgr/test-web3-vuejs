@@ -5,9 +5,9 @@
         <br/>
         <div v-if="ownerAddress === account">
             <label>
-                <input type="text"  placeholder="address token"/>
-                <input type="number"  placeholder="Output DFY"/>
-                <input type="number"  placeholder="Input token"/>
+                <input type="text"  placeholder="address token" v-model="addPairTokenAddress"/>
+                <input type="number"  placeholder="Output DFY" v-model="addPairOutputDFY"/>
+                <input type="number"  placeholder="Input token" v-model="addPairInputToken"/>
             </label>
             <button v-on:click="() => this.addPair()">Add pair</button>
         </div>
@@ -79,6 +79,9 @@
                 buyIdoContract: null,
                 ownerAddress: null,
                 dfyContract: null,
+                addPairTokenAddress: null,
+                addPairOutputDFY: null,
+                addPairInputToken: null,
             }
         },
         created: async function () {
@@ -128,11 +131,16 @@
                     console.error(e.message)
                 }
             },
-            addPair: function () {
-                this.buyIdoContract.methods.getOwner().call(function(err, res){
-                    this.ownerAddress = res
-                    console.log(res); //for example
-                })
+            addPair: async function () {
+                try {
+                    if(!this.addPairInputToken) {
+                        this.addPairInputToken = 1;
+                    }
+                    const updateResult = await this.buyIdoContract.methods.upsertExchangePair(this.addPairTokenAddress, this.addPairOutputDFY, this.addPairInputToken).send({from: this.account});
+                    console.log('updateResult: ', updateResult)
+                } catch (e) {
+                    console.error(e.message)
+                }
             },
             getSupportTokens: function () {
                 const buyIdoContract = this.buyIdoContract

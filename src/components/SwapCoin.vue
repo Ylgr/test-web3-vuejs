@@ -1,9 +1,9 @@
 <template>
     <div>
-        <button v-if="web3" v-on:click="() => this.getAccount()">Connect with Metamask</button>
-        <button disabled>Connect with Binance extension</button>
+        <button v-on:click="() => this.getAccount()" :disabled="!web3">Connect with Metamask</button>
+        <button :disabled="!binanceExtension">Connect with Binance extension</button>
         <br/>
-        <div v-if="ownerAddress === account">
+        <div v-if="account && ownerAddress === account">
             <label>
                 <input type="text"  placeholder="address token" v-model="addPairTokenAddress"/>
                 <input type="number"  placeholder="Output DFY" v-model="addPairOutputDFY"/>
@@ -13,13 +13,14 @@
         </div>
         <h1>Your address: {{account}}</h1>
         <h1>Owner address: {{ownerAddress}}</h1>
-
+        <input type="number"  placeholder="Amount token using to buy DFY" v-model="amountUsing"/>
         <table>
             <thead>
                 <tr>
                     <th scope="col">#</th>
                     <th scope="col">Token address</th>
                     <th scope="col">DFY for each token</th>
+                    <th scope="col">Balance (wei)</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,6 +28,7 @@
                     <th>{{index}}</th>
                     <th>{{item.tokenAddress}}</th>
                     <th>{{item.outputDFYNumber / item.inputTokenNumber}}</th>
+                    <th>{{item.balance}}</th>
                     <th><button v-on:click="() => buyIdoDFY(item.tokenAddress)">Buy with this!</button></th>
                 </tr>
             </tbody>
@@ -74,6 +76,7 @@
         data: function () {
             return {
                 web3: null,
+                binanceExtension: null,
                 account: null,
                 balanceExchangeValue: [],
                 buyIdoContract: null,
@@ -82,6 +85,7 @@
                 addPairTokenAddress: null,
                 addPairOutputDFY: null,
                 addPairInputToken: null,
+                amountUsing: null
             }
         },
         created: async function () {
@@ -120,7 +124,7 @@
             },
             buyIdoDFY: async function (tokenAddress) {
                 console.log('buying ido')
-                const amount = 1
+                const amount = this.amountUsing
                 try {
                     const tokenContract = new this.web3.eth.Contract(erc20TokenAbi, tokenAddress)
                     const approveResult = await tokenContract.methods.approve('0xE56de856b4212A8bf463af32dAD1B2303863aC7D', amount).send({ from: this.account });
@@ -151,7 +155,8 @@
                             Vue.set(self.balanceExchangeValue, self.balanceExchangeValue.length, {
                                 tokenAddress: tokenAddress,
                                 outputDFYNumber: res.outputDFYNumber,
-                                inputTokenNumber: res.inputTokenNumber
+                                inputTokenNumber: res.inputTokenNumber,
+                                balance: 0
                             })
                         })
                     })

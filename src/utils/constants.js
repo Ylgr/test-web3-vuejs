@@ -6,3 +6,8 @@ export const buyIdoContractState = {
     bought: 'BOUGHT',
     buyFailed: 'BUY_FAILED',
 }
+
+export const extensionName = {
+    metamask: 'METAMASK',
+    binanceExtension: 'BINANCE_EXTENSION'
+}

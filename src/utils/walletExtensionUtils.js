@@ -3,20 +3,19 @@ import window from 'global'
 import chainId from '../contracts/chainId';
 import erc20Abi from '../contracts/erc20.abi';
 import idoDFYAbi from '../contracts/idoDFY.abi';
-import {buyIdoContractState} from './constants';
+import {buyIdoContractState, extensionName} from './constants';
 
-export default class MetamaskUtils {
-    constructor() {
+export default class WalletExtensionUtils {
+    constructor(extension) {
         this.web3 = null
         this.idoSmartcontract = process.env.VUE_APP_IDO_DFY_SMART_CONTRACT_ADDRESS
         const self = this
-        if (window.ethereum) {
-            if (window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscMainnet)
-                || window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscTestnet)
-            ) {
-                this.web3 = new Web3(window.ethereum)
-                window.ethereum.enable().then(async () => {
+        if(extension === extensionName.binanceExtension) {
+            if(window.BinanceChain) {
+                this.web3 = new Web3(window.BinanceChain)
+                window.BinanceChain.enable().then(async () => {
                     const addresses = await this.web3.eth.getAccounts()
+                    console.log('addresses: ', addresses)
                     this.address = addresses[0]
 
                     this.buyIdoContract = new this.web3.eth.Contract(idoDFYAbi, self.idoSmartcontract, {
@@ -26,7 +25,28 @@ export default class MetamaskUtils {
                     console.error(error.message)
                     this.web3 = null
                 })
-            }
+            } else alert('You need to have Binance Extension first') //TODO
+        } else if (extension === extensionName.metamask) {
+            if(window.ethereum) {
+                if (window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscMainnet)
+                    || window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscTestnet)
+                ) {
+                    this.web3 = new Web3(window.ethereum)
+                    window.ethereum.enable().then(async () => {
+                        const addresses = await this.web3.eth.getAccounts()
+                        this.address = addresses[0]
+
+                        this.buyIdoContract = new this.web3.eth.Contract(idoDFYAbi, self.idoSmartcontract, {
+                            transactionConfirmationBlocks: 1
+                        })
+                    }).catch(error => {
+                        console.error(error.message)
+                        this.web3 = null
+                    })
+                } else {
+                    alert('You need to switch to Binance network first!') //TODO
+                }
+            } else alert('You need to have Metamask first') // TODO
         }
     }
 
@@ -34,7 +54,7 @@ export default class MetamaskUtils {
         const self = this
         window.ethereum.on('accountsChanged', function (accounts) {
             self.address = accounts[0]
-            // Do something with change account here
+            //TODO Do something with change account here
         });
     }
 

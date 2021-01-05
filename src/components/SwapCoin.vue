@@ -1,5 +1,7 @@
 <template>
     <div>
+        <button v-on:click="() => this.testMetamask()">Test Metamask</button>
+        <br/>
         <button v-on:click="() => this.getAccount()" :disabled="!web3">Connect with Metamask</button>
         <button :disabled="!binanceExtension">Connect with Binance extension</button>
         <br/>
@@ -39,15 +41,17 @@
 </template>
 
 <script>
+    import MetamaskUtils from '../utils/metamaskUtils';
+    import erc20Abi from '../contracts/erc20.abi';
+    import idoDFYAbi from '../contracts/idoDFY.abi';
+    import Vue from 'vue';
     import Web3 from 'web3';
-    import IdoDFY from '../contracts/IdoDFY';
-    import DFY from '../contracts/DFY';
-    import Vue from 'vue'
 
     const chainId = {
-        bscMainnet: 56,
-        bscTestnet: 97
+        "bscMainnet": 56,
+        "bscTestnet": 97
     }
+
 
     const erc20TokenAbi = [{
             "inputs": [
@@ -107,10 +111,12 @@
                 addPairTokenAddress: null,
                 addPairOutputDFY: null,
                 addPairInputToken: null,
-                amountUsing: null
+                amountUsing: null,
+                metamaskUtils: null
             }
         },
         created: async function () {
+            this.metamaskUtils = new MetamaskUtils();
             let web3 = null
             if (window.ethereum) {
                 if (window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscMainnet)
@@ -133,10 +139,10 @@
                 this.account = accounts[0]
 
                 // call contract to get exchange data
-                this.buyIdoContract = new this.web3.eth.Contract(IdoDFY.abi, '0xE56de856b4212A8bf463af32dAD1B2303863aC7D', {
+                this.buyIdoContract = new this.web3.eth.Contract(idoDFYAbi, '0xE56de856b4212A8bf463af32dAD1B2303863aC7D', {
                     transactionConfirmationBlocks: 1
                 })
-                this.dfyContract = new this.web3.eth.Contract(DFY.abi, DFY.networks["97"].address, {
+                this.dfyContract = new this.web3.eth.Contract(erc20Abi, '0xb6bd9bba44c8369d47f07ccc9032e65e811a112d', {
                     transactionConfirmationBlocks: 1
                 })
 
@@ -145,7 +151,6 @@
                 this.ownerAddress = await this.buyIdoContract.methods.getOwner().call()
             },
             buyIdoDFY: async function (tokenAddress) {
-                console.log('buying ido')
                 const amount = this.amountUsing
                 try {
                     const tokenContract = new this.web3.eth.Contract(erc20TokenAbi, tokenAddress)
@@ -157,6 +162,16 @@
                 } catch (e) {
                     console.error(e.message)
                 }
+            },
+            testMetamask: async function () {
+                console.log('..Test metamask..')
+                console.log('isConnected: ',this.metamaskUtils.isConnected())
+                const supportTokenAndBalance = await this.metamaskUtils.getSupportTokenAndBalance()
+                console.log('getSupportTokenAndBalance: ',supportTokenAndBalance)
+                const buyResult = await this.metamaskUtils.buyIdoContractCall(supportTokenAndBalance[0].tokenAddress,1, (msg) => {
+                    console.log('buy state: ', msg)
+                })
+                console.log('buyResult: ', buyResult)
             },
             addPair: async function () {
                 try {

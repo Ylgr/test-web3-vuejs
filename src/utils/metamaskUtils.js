@@ -1,4 +1,5 @@
 import Web3 from 'web3';
+import window from 'global'
 import chainId from '../contracts/chainId';
 import erc20Abi from '../contracts/erc20.abi';
 import idoDFYAbi from '../contracts/idoDFY.abi';
@@ -8,14 +9,11 @@ export default class MetamaskUtils {
     constructor() {
         this.web3 = null
         this.idoSmartcontract = process.env.VUE_APP_IDO_DFY_SMART_CONTRACT_ADDRESS
-        console.log('process.env: ', process.env)
-        console.log('this.idoSmartcontract: ', this.idoSmartcontract)
         const self = this
         if (window.ethereum) {
             if (window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscMainnet)
                 || window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscTestnet)
             ) {
-                console.log('connect to eth')
                 this.web3 = new Web3(window.ethereum)
                 window.ethereum.enable().then(async () => {
                     const addresses = await this.web3.eth.getAccounts()
@@ -30,6 +28,34 @@ export default class MetamaskUtils {
                 })
             }
         }
+    }
+
+    accountsChanged() {
+        const self = this
+        window.ethereum.on('accountsChanged', function (accounts) {
+            self.address = accounts[0]
+            // Do something with change account here
+        });
+    }
+
+    async getBuyHistory() {
+        const pastLogs = await this.web3.eth.getPastLogs({
+            fromBlock: 0,
+            toBlock: 'latest',
+            address: this.idoSmartcontract,
+            topics: [Web3.utils.sha3('BuyIdoSuccess(uint256)')]
+        })
+        let transactions = []
+        for(const event of pastLogs) {
+            const transaction = await this.web3.eth.getTransaction(event.transactionHash)
+            transactions.push(transaction)
+        }
+        return transactions
+    }
+
+    async getBuyHistoryOfThisAccount() {
+        const transactions = await this.getBuyHistory()
+        return transactions.filter(e => e.from === this.address)
     }
 
     isConnected() {
@@ -61,7 +87,6 @@ export default class MetamaskUtils {
         return this.buyIdoContract.methods.upsertExchangePair(addPairTokenAddress, addPairOutputDFY, addPairInputToken)
             .send({from: this.address});
     }
-
 
     async buyIdoContractCall(tokenAddress, amount, callback) {
         const tokenContract = new this.web3.eth.Contract(erc20Abi, tokenAddress)

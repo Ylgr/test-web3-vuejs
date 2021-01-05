@@ -117,6 +117,7 @@
         },
         created: async function () {
             this.metamaskUtils = new MetamaskUtils();
+            this.metamaskUtils.accountsChanged();
             let web3 = null
             if (window.ethereum) {
                 if (window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscMainnet)
@@ -164,14 +165,17 @@
                 }
             },
             testMetamask: async function () {
+
                 console.log('..Test metamask..')
                 console.log('isConnected: ',this.metamaskUtils.isConnected())
-                const supportTokenAndBalance = await this.metamaskUtils.getSupportTokenAndBalance()
-                console.log('getSupportTokenAndBalance: ',supportTokenAndBalance)
-                const buyResult = await this.metamaskUtils.buyIdoContractCall(supportTokenAndBalance[0].tokenAddress,1, (msg) => {
-                    console.log('buy state: ', msg)
-                })
-                console.log('buyResult: ', buyResult)
+                const history = await this.metamaskUtils.getBuyHistoryOfThisAccount()
+                console.log('history: ', history)
+                // const supportTokenAndBalance = await this.metamaskUtils.getSupportTokenAndBalance()
+                // console.log('getSupportTokenAndBalance: ',supportTokenAndBalance)
+                // const buyResult = await this.metamaskUtils.buyIdoContractCall(supportTokenAndBalance[0].tokenAddress,1, (msg) => {
+                //     console.log('buy state: ', msg)
+                // })
+                // console.log('buyResult: ', buyResult)
             },
             addPair: async function () {
                 try {

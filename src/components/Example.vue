@@ -29,9 +29,13 @@
             },
             connnectWithExtension(extension) {
                 this.extension = new WalletExtensionUtils(extension)
+                Vue.set(this.log, this.log.length, 'window.ethereum')
+                Vue.set(this.log, this.log.length, JSON.stringify(window.ethereum))
+                Vue.set(this.log, this.log.length, 'window.BinanceChain')
+                Vue.set(this.log, this.log.length, JSON.stringify(window.BinanceChain))
+
             },
             getHistory: async function () {
-                console.log('this.log: ', this.log)
                 console.log('..Test getHistory..')
                 console.log('isConnected: ',this.extension.isConnected())
                 let isConnect = 'isConnected: ' + this.extension.isConnected()

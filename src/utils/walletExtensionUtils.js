@@ -30,8 +30,8 @@ export default class WalletExtensionUtils {
             if(window.ethereum) {
                 if (window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscMainnet)
                     || window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscTestnet)
-                    || window.ethereum.chainId === chainId.bscMainnet
-                    || window.ethereum.chainId === chainId.bscTestnet
+                    || window.ethereum.chainId == chainId.bscMainnet
+                    || window.ethereum.chainId == chainId.bscTestnet
                 ) {
                     this.web3 = new Web3(window.ethereum)
                     window.ethereum.enable().then(async () => {

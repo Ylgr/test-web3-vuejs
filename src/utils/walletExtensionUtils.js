@@ -92,7 +92,7 @@ export default class WalletExtensionUtils {
         let supportTokenAndBalance = []
         const tokenAddresses = await this.buyIdoContract.methods.getTokenSupport().call()
         for(const tokenAddress of tokenAddresses) {
-            const exchangeValue = await this.buyIdoContract.methods.exchangeValues(tokenAddress).call()
+            const exchangeValue = await this.buyIdoContract.methods.exchangePairs(tokenAddress).call()
             const tokenContract = new this.web3.eth.Contract(erc20Abi, tokenAddress)
             const userBalance = await tokenContract.methods.balanceOf(this.address).call()
             supportTokenAndBalance.push({
@@ -123,7 +123,7 @@ export default class WalletExtensionUtils {
         }
         try {
             callback(buyIdoContractState.buying)
-            const boughtResult = await this.buyIdoContract.methods.buyIdo(tokenAddress, amount)
+            const boughtResult = await this.buyIdoContract.methods.buyIdo(tokenAddress, amount, '0x0000000000000000000000000000000000000000')
                 .send({from: this.address})
             callback(buyIdoContractState.bought)
             return boughtResult

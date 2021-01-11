@@ -87,6 +87,34 @@ export default class WalletExtensionUtils {
         return this.address
     }
 
+    async getStartTime() {
+        return this.buyIdoContract.methods.start().call()
+    }
+
+    async getEndTime() {
+        return this.buyIdoContract.methods.end().call()
+    }
+
+    async getMaxBuyAmount() {
+        return this.buyIdoContract.methods.buyMaximum().call()
+    }
+
+    async getMaxPersonRef() {
+        return this.buyIdoContract.methods.maxPersonRef().call()
+    }
+
+    async getReferralRewardPercent() {
+        return this.buyIdoContract.methods.refRewardPercent().call()
+    }
+
+    async isPauseStatus() {
+        return this.buyIdoContract.methods.state().call()
+    }
+
+    async isCurrentReferralAmount() {
+        return this.buyIdoContract.methods.referralRewardTotal(this.address).call()
+    }
+
     async getSupportTokenAndBalance() {
         let supportTokenAndBalance = []
         const tokenAddresses = await this.buyIdoContract.methods.getTokenSupport().call()

@@ -59,6 +59,10 @@
 
             },
             buyIdo: async function () {
+                const start = await this.extension.getStartTime()
+                console.log('getStartTime: ', start)
+                const end = await this.extension.getEndTime()
+                console.log('getEndTime: ', end)
                 console.log('..Test getHistory..')
                 console.log('isConnected: ',this.extension.isConnected())
                 Vue.set(this.log, this.log.length, 'isConnected: ' + this.extension.isConnected())

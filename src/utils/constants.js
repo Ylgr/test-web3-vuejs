@@ -9,5 +9,6 @@ export const buyIdoContractState = {
 
 export const extensionName = {
     metamask: 'METAMASK',
-    binanceExtension: 'BINANCE_EXTENSION'
+    binanceExtension: 'BINANCE_EXTENSION',
+    trustWallet: 'TRUST_WALLET'
 }

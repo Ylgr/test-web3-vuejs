@@ -15,7 +15,6 @@ export default class WalletExtensionUtils {
                 this.web3 = new Web3(window.BinanceChain)
                 window.BinanceChain.enable().then(async () => {
                     const addresses = await this.web3.eth.getAccounts()
-                    console.log('addresses: ', addresses)
                     this.address = addresses[0]
 
                     this.buyIdoContract = new this.web3.eth.Contract(idoDFYAbi, self.idoSmartcontract, {
@@ -26,7 +25,7 @@ export default class WalletExtensionUtils {
                     this.web3 = null
                 })
             } else alert('You need to have Binance Extension first') //TODO
-        } else if (extension === extensionName.metamask) {
+        } else if (extension === extensionName.metamask || extension === extensionName.trustWallet) {
             if(window.ethereum) {
                 if (window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscMainnet)
                     || window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscTestnet)
@@ -52,11 +51,11 @@ export default class WalletExtensionUtils {
         }
     }
 
-    accountsChanged() {
+    accountsChanged(callback) {
         const self = this
         window.ethereum.on('accountsChanged', function (accounts) {
             self.address = accounts[0]
-            //TODO Do something with change account here
+            callback(accounts[0])
         });
     }
 

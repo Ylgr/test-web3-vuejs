@@ -49,6 +49,14 @@
                     const balance = await this.extension.getSupportTokenAndBalance()
                     console.log('balance: ', balance)
                 }, 100)
+
+                Vue.set(this.log, this.log.length, 'window.ethereum')
+                Vue.set(this.log, this.log.length, JSON.stringify(window.ethereum))
+                Vue.set(this.log, this.log.length, 'window.BinanceChain')
+                Vue.set(this.log, this.log.length, JSON.stringify(window.BinanceChain))
+                Vue.set(this.log, this.log.length, 'window.web3')
+                Vue.set(this.log, this.log.length, JSON.stringify(window.web3))
+
             },
             getHistory: async function () {
                 console.log('..Test getHistory..')

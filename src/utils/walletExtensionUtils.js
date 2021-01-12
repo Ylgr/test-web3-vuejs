@@ -12,6 +12,7 @@ export default class WalletExtensionUtils {
         const self = this
         if(extension === extensionName.binanceExtension) {
             if(window.BinanceChain) {
+                this.extension = window.BinanceChain
                 this.web3 = new Web3(window.BinanceChain)
                 window.BinanceChain.enable().then(async () => {
                     const addresses = await this.web3.eth.getAccounts()
@@ -32,6 +33,7 @@ export default class WalletExtensionUtils {
                     || window.ethereum.chainId == chainId.bscMainnet
                     || window.ethereum.chainId == chainId.bscTestnet
                 ) {
+                    this.extension = window.ethereum
                     this.web3 = new Web3(window.ethereum)
                     window.ethereum.enable().then(async () => {
                         const addresses = await this.web3.eth.getAccounts()
@@ -53,7 +55,7 @@ export default class WalletExtensionUtils {
 
     accountsChanged(callback) {
         const self = this
-        window.ethereum.on('accountsChanged', function (accounts) {
+        this.extension.on('accountsChanged', function (accounts) {
             self.address = accounts[0]
             callback(accounts[0])
         });

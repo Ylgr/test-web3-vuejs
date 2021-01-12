@@ -124,10 +124,14 @@ export default class WalletExtensionUtils {
             const exchangeValue = await this.buyIdoContract.methods.exchangePairs(tokenAddress).call()
             const tokenContract = new this.web3.eth.Contract(erc20Abi, tokenAddress)
             const userBalance = await tokenContract.methods.balanceOf(this.address).call()
+
+            const tokenSymbol = await tokenContract.methods.symbol().call()
+            
             supportTokenAndBalance.push({
                 tokenAddress: tokenAddress,
-                outputDFYNumber: exchangeValue.outputDFYNumber,
-                inputTokenNumber: exchangeValue.inputTokenNumber,
+                tokenSymbol: tokenSymbol,
+                outputDFYNumber: exchangeValue.output,
+                inputTokenNumber: exchangeValue.input,
                 balance: userBalance
             })
         }

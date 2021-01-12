@@ -1,7 +1,7 @@
 <template>
     <div>
         <button v-on:click="() => this.connnectWithExtension(getExtension().metamask)" :disabled="!isMetamaskAvailable()">Connect with Metamask</button>
-        <button v-on:click="() => this.connnectWithExtension(getExtension().binanceExtension)" :disabled="!isBinanceExtensionAvailable()">Connect with Binance Extension</button>
+        <button v-on:click="() => this.connnectWithExtension(getExtension().binanceExtension)">Connect with Binance Extension</button>
         <button v-on:click="() => this.connnectWithExtension(getExtension().trustWallet)" :disabled="!isTrustWalletAvailable()">Connect with Trust Wallet</button>
         <br/>
         <button v-on:click="() => this.getHistory()" :disabled="!extension">Get history</button>
@@ -40,12 +40,10 @@
             },
             connnectWithExtension(extension) {
                 this.extension = new WalletExtensionUtils(extension)
-                Vue.set(this.log, this.log.length, 'window.ethereum')
-                Vue.set(this.log, this.log.length, JSON.stringify(window.ethereum))
-                Vue.set(this.log, this.log.length, 'window.BinanceChain')
-                Vue.set(this.log, this.log.length, JSON.stringify(window.BinanceChain))
-                Vue.set(this.log, this.log.length, 'window.web3')
-                Vue.set(this.log, this.log.length, JSON.stringify(window.web3))
+                this.extension.accountsChanged(function (log) {
+                    console.log('callback account change')
+                    console.log(log)
+                })
 
             },
             getHistory: async function () {

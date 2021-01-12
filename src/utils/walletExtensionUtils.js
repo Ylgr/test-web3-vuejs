@@ -61,26 +61,6 @@ export default class WalletExtensionUtils {
         });
     }
 
-    async getBuyHistory() {
-        const pastLogs = await this.web3.eth.getPastLogs({
-            fromBlock: 0,
-            toBlock: 'latest',
-            address: this.idoSmartcontract,
-            topics: [Web3.utils.sha3('BuyIdoSuccess(uint256)')]
-        })
-        let transactions = []
-        for(const event of pastLogs) {
-            const transaction = await this.web3.eth.getTransaction(event.transactionHash)
-            transactions.push(transaction)
-        }
-        return transactions
-    }
-
-    async getBuyHistoryOfThisAccount() {
-        const transactions = await this.getBuyHistory()
-        return transactions.filter(e => e.from === this.address)
-    }
-
     isConnected() {
         return this.web3 !== null
     }
@@ -126,7 +106,6 @@ export default class WalletExtensionUtils {
             const userBalance = await tokenContract.methods.balanceOf(this.address).call()
 
             const tokenSymbol = await tokenContract.methods.symbol().call()
-            
             supportTokenAndBalance.push({
                 tokenAddress: tokenAddress,
                 tokenSymbol: tokenSymbol,

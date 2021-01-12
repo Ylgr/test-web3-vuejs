@@ -45,6 +45,10 @@
                     console.log(log)
                 })
 
+                setTimeout(async () => {
+                    const balance = await this.extension.getSupportTokenAndBalance()
+                    console.log('balance: ', balance)
+                }, 100)
             },
             getHistory: async function () {
                 console.log('..Test getHistory..')

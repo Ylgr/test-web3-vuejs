@@ -55,6 +55,8 @@
                 setTimeout(async () => {
                     const balance = await this.extension.getSupportTokenAndBalance()
                     console.log('balance: ', balance)
+                    const boughtAmount = await this.extension.getBoughtAmount()
+                    console.log('boughtAmount: ', boughtAmount)
                 }, 100)
 
 

@@ -95,8 +95,12 @@ export default class WalletExtensionUtils {
         return this.buyIdoContract.methods.state().call()
     }
 
-    async isCurrentReferralAmount() {
+    async getCurrentReferralAmount() {
         return this.buyIdoContract.methods.referralRewardTotal(this.address).call()
+    }
+
+    async getBoughtAmount() {
+        return this.buyIdoContract.methods.boughtAmountTotals(this.address).call()
     }
 
     async getSupportTokenAndBalance() {

@@ -1,8 +1,8 @@
 <template>
     <div>
-        <button v-on:click="() => this.connnectWithExtension(getExtension().metamask)" :disabled="!isMetamaskAvailable()">Connect with Metamask</button>
+        <button v-on:click="() => this.connnectWithExtension(getExtension().metamask)">Connect with Metamask</button>
         <button v-on:click="() => this.connnectWithExtension(getExtension().binanceExtension)">Connect with Binance Extension</button>
-        <button v-on:click="() => this.connnectWithExtension(getExtension().trustWallet)" :disabled="!isTrustWalletAvailable()">Connect with Trust Wallet</button>
+        <button v-on:click="() => this.connnectWithExtension(getExtension().trustWallet)">Connect with Trust Wallet</button>
         <br/>
         <button v-on:click="() => this.getHistory()" :disabled="!extension">Get history</button>
         <button v-on:click="() => this.buyIdo()" :disabled="!extension">Buy Ido</button>
@@ -39,6 +39,13 @@
                 return isTrustWalletAvailable()
             },
             connnectWithExtension(extension) {
+                Vue.set(this.log, this.log.length, 'window.ethereum')
+                Vue.set(this.log, this.log.length, JSON.stringify(window.ethereum))
+                Vue.set(this.log, this.log.length, 'window.BinanceChain')
+                Vue.set(this.log, this.log.length, JSON.stringify(window.BinanceChain))
+                Vue.set(this.log, this.log.length, 'window.Web3')
+                Vue.set(this.log, this.log.length, JSON.stringify(window.Web3))
+
                 this.extension = new WalletExtensionUtils(extension)
                 this.extension.accountsChanged(function (log) {
                     console.log('callback account change')
@@ -50,12 +57,7 @@
                     console.log('balance: ', balance)
                 }, 100)
 
-                Vue.set(this.log, this.log.length, 'window.ethereum')
-                Vue.set(this.log, this.log.length, JSON.stringify(window.ethereum))
-                Vue.set(this.log, this.log.length, 'window.BinanceChain')
-                Vue.set(this.log, this.log.length, JSON.stringify(window.BinanceChain))
-                Vue.set(this.log, this.log.length, 'window.web3')
-                Vue.set(this.log, this.log.length, JSON.stringify(window.web3))
+
 
             },
             getHistory: async function () {

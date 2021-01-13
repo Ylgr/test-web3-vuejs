@@ -32,6 +32,8 @@ export default class WalletExtensionUtils {
                     || window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscTestnet)
                     || window.ethereum.chainId == chainId.bscMainnet
                     || window.ethereum.chainId == chainId.bscTestnet
+                    || window.ethereum.networkVersion == chainId.bscMainnet
+                    || window.ethereum.networkVersion == chainId.bscTestnet
                 ) {
                     this.extension = window.ethereum
                     this.web3 = new Web3(window.ethereum)
@@ -49,7 +51,7 @@ export default class WalletExtensionUtils {
                 } else {
                     alert('You need to switch to Binance network first!') //TODO
                 }
-            } else alert('You need to have Metamask first') // TODO
+            } else alert('You need to have Wallet first') // TODO
         }
     }
 

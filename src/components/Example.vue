@@ -57,10 +57,9 @@
                     console.log('balance: ', balance)
                     const boughtAmount = await this.extension.getBoughtAmount()
                     console.log('boughtAmount: ', boughtAmount)
+                    const remainDFY = await this.extension.getRemainDFY()
+                    console.log('remainDFY: ', remainDFY)
                 }, 100)
-
-
-
             },
             getHistory: async function () {
                 console.log('..Test getHistory..')

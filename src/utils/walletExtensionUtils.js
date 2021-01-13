@@ -103,6 +103,11 @@ export default class WalletExtensionUtils {
         return this.buyIdoContract.methods.boughtAmountTotals(this.address).call()
     }
 
+    async getRemainDFY() {
+        const dfyContract = new this.web3.eth.Contract(erc20Abi, process.env.VUE_APP_DFY_SMART_CONTRACT_ADDRESS)
+        return dfyContract.methods.balanceOf(this.idoSmartcontract).call()
+    }
+
     async getSupportTokenAndBalance() {
         let supportTokenAndBalance = []
         const tokenAddresses = await this.buyIdoContract.methods.getTokenSupport().call()

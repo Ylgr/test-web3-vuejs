@@ -8,6 +8,11 @@
       },
       {
         "internalType": "uint256",
+        "name": "_buyMinimum",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
         "name": "_buyMaximum",
         "type": "uint256"
       },
@@ -224,6 +229,19 @@
   {
     "inputs": [],
     "name": "buyMaximum",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "buyMinimum",
     "outputs": [
       {
         "internalType": "uint256",

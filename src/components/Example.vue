@@ -4,7 +4,6 @@
         <button v-on:click="() => this.connnectWithExtension(getExtension().binanceExtension)">Connect with Binance Extension</button>
         <button v-on:click="() => this.connnectWithExtension(getExtension().trustWallet)">Connect with Trust Wallet</button>
         <br/>
-        <button v-on:click="() => this.getHistory()" :disabled="!extension">Get history</button>
         <button v-on:click="() => this.buyIdo()" :disabled="!extension">Buy Ido</button>
 
         <p>{{this.log.join(', ')}}</p>
@@ -47,29 +46,20 @@
                 Vue.set(this.log, this.log.length, JSON.stringify(window.Web3))
 
                 this.extension = new WalletExtensionUtils(extension)
-                this.extension.accountsChanged(function (log) {
-                    console.log('callback account change')
-                    console.log(log)
-                })
+
 
                 setTimeout(async () => {
+                    this.extension.accountsChanged(function (log) {
+                        console.log('callback account change')
+                        console.log(log)
+                    })
                     const balance = await this.extension.getSupportTokenAndBalance()
                     console.log('balance: ', balance)
-                    const boughtAmount = await this.extension.getBoughtAmount()
-                    console.log('boughtAmount: ', boughtAmount)
-                    const remainDFY = await this.extension.getRemainDFY()
-                    console.log('remainDFY: ', remainDFY)
-                }, 100)
-            },
-            getHistory: async function () {
-                console.log('..Test getHistory..')
-                console.log('isConnected: ',this.extension.isConnected())
-                let isConnect = 'isConnected: ' + this.extension.isConnected()
-                Vue.set(this.log, this.log.length, isConnect)
-                const history = await this.extension.getBuyHistoryOfThisAccount()
-                console.log('history: ', history)
-                Vue.set(this.log, this.log.length, 'history: ' + history.map(e => JSON.stringify(e)).join(', '))
-
+                    // const boughtAmount = await this.extension.getBoughtAmount()
+                    // console.log('boughtAmount: ', boughtAmount)
+                    // const remainDFY = await this.extension.getRemainDFY()
+                    // console.log('remainDFY: ', remainDFY)
+                }, 1000)
             },
             buyIdo: async function () {
                 const start = await this.extension.getStartTime()
@@ -82,8 +72,8 @@
                 const supportTokenAndBalance = await this.extension.getSupportTokenAndBalance()
                 console.log('getSupportTokenAndBalance: ',supportTokenAndBalance)
                 Vue.set(this.log, this.log.length, 'getSupportTokenAndBalance: ' + supportTokenAndBalance.map(e => JSON.stringify(e)).join(', '))
-
-                const buyResult = await this.extension.buyIdoContractCall(supportTokenAndBalance[0].tokenAddress,1, (msg) => {
+                const address0 = '0x0000000000000000000000000000000000000000'
+                const buyResult = await this.extension.buyIdoContractCall(supportTokenAndBalance[0].tokenAddress,'100000000000',address0, (msg) => {
                     console.log('buy state: ', msg)
                     Vue.set(this.log, this.log.length, 'state: ' + msg)
 

@@ -4,6 +4,7 @@ import chainId from '../contracts/chainId';
 import erc20Abi from '../contracts/erc20.abi';
 import idoDFYAbi from '../contracts/idoDFY.abi';
 import {buyIdoContractState, extensionName} from './constants';
+import { BigNumber } from 'bignumber.js';
 
 export default class WalletExtensionUtils {
     constructor(extension) {
@@ -28,11 +29,12 @@ export default class WalletExtensionUtils {
             } else alert('You need to have Binance Extension first') //TODO
         } else if (extension === extensionName.metamask || extension === extensionName.trustWallet) {
             if(window.ethereum) {
-                if (window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscMainnet)
-                    || window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscTestnet)
-                    || window.ethereum.chainId == chainId.bscMainnet
+                if (
+                    // window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscMainnet)
+                    window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscTestnet)
+                    // || window.ethereum.chainId == chainId.bscMainnet
                     || window.ethereum.chainId == chainId.bscTestnet
-                    || window.ethereum.networkVersion == chainId.bscMainnet
+                    // || window.ethereum.networkVersion == chainId.bscMainnet
                     || window.ethereum.networkVersion == chainId.bscTestnet
                 ) {
                     this.extension = window.ethereum
@@ -129,17 +131,15 @@ export default class WalletExtensionUtils {
         return supportTokenAndBalance
     }
 
-    async addPairContractCall(addPairTokenAddress, addPairOutputDFY, addPairInputToken = 1) {
-        return this.buyIdoContract.methods.upsertExchangePair(addPairTokenAddress, addPairOutputDFY, addPairInputToken)
-            .send({from: this.address});
-    }
-
-    async buyIdoContractCall(tokenAddress, amount, callback) {
+    async buyIdoContractCall(tokenAddress, amount, refAddress, callback) {
         const tokenContract = new this.web3.eth.Contract(erc20Abi, tokenAddress)
         try {
             callback(buyIdoContractState.approving)
-            await tokenContract.methods.approve(this.idoSmartcontract, amount)
-                .send({from: this.address})
+            const allowanceNumber = await tokenContract.methods.allowance(this.address, this.idoSmartcontract).call()
+            if(!BigNumber(allowanceNumber).isGreaterThanOrEqualTo(BigNumber(amount))) {
+                await tokenContract.methods.approve(this.idoSmartcontract, amount)
+                    .send({from: this.address})
+            }
             callback(buyIdoContractState.approved)
         } catch (e) {
             callback(buyIdoContractState.approveFailed)
@@ -147,7 +147,7 @@ export default class WalletExtensionUtils {
         }
         try {
             callback(buyIdoContractState.buying)
-            const boughtResult = await this.buyIdoContract.methods.buyIdo(tokenAddress, amount, '0x0000000000000000000000000000000000000000')
+            const boughtResult = await this.buyIdoContract.methods.buyIdo(tokenAddress, amount, refAddress)
                 .send({from: this.address})
             callback(buyIdoContractState.bought)
             return boughtResult

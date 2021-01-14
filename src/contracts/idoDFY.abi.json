@@ -159,6 +159,31 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "receiveAddress",
+        "type": "address"
+      }
+    ],
+    "name": "WithdrawnToken",
+    "type": "event"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -536,6 +561,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_tokenAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawnToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]

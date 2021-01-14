@@ -48,18 +48,37 @@
                 this.extension = new WalletExtensionUtils(extension)
 
 
-                setTimeout(async () => {
-                    this.extension.accountsChanged(function (log) {
-                        console.log('callback account change')
-                        console.log(log)
-                    })
-                    const balance = await this.extension.getSupportTokenAndBalance()
-                    console.log('balance: ', balance)
-                    // const boughtAmount = await this.extension.getBoughtAmount()
-                    // console.log('boughtAmount: ', boughtAmount)
-                    // const remainDFY = await this.extension.getRemainDFY()
-                    // console.log('remainDFY: ', remainDFY)
-                }, 1000)
+                function getInfo(self, retryTime) {
+                    setTimeout(async () => {
+                        console.log('getting info....')
+                        try {
+                            self.extension.accountsChanged(function (log) {
+                                console.log('callback account change')
+                                console.log(log)
+                            })
+                            const balance = await self.extension.getSupportTokenAndBalance()
+                            console.log('balance: ', balance)
+                            const boughtAmount = await self.extension.getBoughtAmount()
+                            console.log('boughtAmount: ', boughtAmount)
+                            const remainDFY = await self.extension.getRemainDFY()
+                            console.log('remainDFY: ', remainDFY)
+                            return true
+                        } catch (e) {
+                            console.log('retryTime: ', retryTime)
+                            if(retryTime === 0) {
+                                console.error(e.message)
+                            } else {
+                                return getInfo(self,retryTime - 1)
+                            }
+                        }
+                    }, 1000)
+
+                }
+
+                getInfo(this,5)
+                // setTimeout(async () => {
+
+                // }, 1000)
             },
             buyIdo: async function () {
                 const start = await this.extension.getStartTime()

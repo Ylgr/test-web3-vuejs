@@ -142,6 +142,7 @@ export default class WalletExtensionUtils {
             }
             callback(buyIdoContractState.approved)
         } catch (e) {
+            console.error(e.message)
             callback(buyIdoContractState.approveFailed)
             return e.message
         }

@@ -11,3 +11,19 @@ export function isBinanceExtensionAvailable() {
 export function isTrustWalletAvailable() {
     return !!(window.ethereum && window.ethereum.isTrust)
 }
+
+export function retryWithTimeout(callback, callbackReject = function () {} , retryTime = 5, timeout = 1000) {
+    return setTimeout(async () => {
+        try {
+            await callback()
+        } catch (e) {
+            console.log(e.message)
+            if(retryTime === 0) {
+                console.error(e.message)
+                await callbackReject()
+            } else {
+                return retryWithTimeout(callback,retryTime - 1, timeout)
+            }
+        }
+    }, timeout)
+}

@@ -93,7 +93,7 @@
                 console.log('getSupportTokenAndBalance: ',supportTokenAndBalance)
                 Vue.set(this.log, this.log.length, 'getSupportTokenAndBalance: ' + supportTokenAndBalance.map(e => JSON.stringify(e)).join(', '))
                 const address0 = '0x0000000000000000000000000000000000000000'
-                const buyResult = await this.extension.buyIdoContractCall(supportTokenAndBalance[0].tokenAddress,BigNumber(0.1*Math.pow(10,18)),address0, (msg) => {
+                const buyResult = await this.extension.buyIdoContractCall(supportTokenAndBalance[0].tokenAddress,BigNumber(0.01*Math.pow(10,18)),address0, (msg) => {
                     console.log('buy state: ', msg)
                     Vue.set(this.log, this.log.length, 'state: ' + msg)
 

@@ -12,6 +12,16 @@ export default class WalletExtensionUtils {
         this.web3 = null
         this.idoSmartcontract = process.env.VUE_APP_IDO_DFY_SMART_CONTRACT_ADDRESS
         let self = this
+        if(process.env.VUE_APP_BLOCKCHAIN_NETWORK === 'TESTNET') {
+            import('../tokens/supportTokenTest').then(token => {
+                self.mapTokenSymbol = token.default
+            })
+        } else {
+            import('../tokens/supportToken').then(token => {
+                self.mapTokenSymbol = token.default
+            })
+        }
+        console.log('this.mapTokenSymbol: ', this.mapTokenSymbol)
         if (extension === extensionName.binanceExtension) {
             retryWithTimeout(function () {
                 if (window.BinanceChain) {
@@ -164,14 +174,15 @@ export default class WalletExtensionUtils {
             return e.message
         }
         try {
+            const self = this
             const boughtResult = await this.buyIdoContract.methods.buyIdo(tokenAddress, amountInHex, refAddress)
                 .send({from: this.address}, function (error, transactionHash) {
                     callback({
                         status: buyIdoContractState.buying,
                         transaction: {
                             txid: transactionHash,
-                            address: this.address,
-                            token: tokenAddress,
+                            address: self.address,
+                            token: self.mapTokenSymbol[Web3.utils.toChecksumAddress(tokenAddress)],
                             amount: amount.dividedBy(Math.pow(10, 18)).toString()
                         }
                     })

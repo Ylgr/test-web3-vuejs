@@ -57,6 +57,7 @@
                                 console.log('callback account change')
                                 console.log(log)
                             })
+                            console.log('dasdasd')
                             const balance = await self.extension.getSupportTokenAndBalance()
                             console.log('balance: ', balance)
                             const boughtAmount = await self.extension.getBoughtAmount()
@@ -77,9 +78,6 @@
                 }
 
                 getInfo(this,5)
-                // setTimeout(async () => {
-
-                // }, 1000)
             },
             buyIdo: async function () {
                 const start = await this.extension.getStartTime()
@@ -89,13 +87,10 @@
                 console.log('..Test getHistory..')
                 console.log('isConnected: ',this.extension.isConnected())
                 Vue.set(this.log, this.log.length, 'isConnected: ' + this.extension.isConnected())
-                const supportTokenAndBalance = await this.extension.getSupportTokenAndBalance()
-                console.log('getSupportTokenAndBalance: ',supportTokenAndBalance)
-                Vue.set(this.log, this.log.length, 'getSupportTokenAndBalance: ' + supportTokenAndBalance.map(e => JSON.stringify(e)).join(', '))
                 const address0 = '0x0000000000000000000000000000000000000000'
-                const buyResult = await this.extension.buyIdoContractCall(supportTokenAndBalance[0].tokenAddress,BigNumber(0.01*Math.pow(10,18)),address0, (msg) => {
+                const buyResult = await this.extension.buyIdoContractCall('0xd66c6b4f0be8ce5b39d52e0fd1344c389929b378',BigNumber(0.01*Math.pow(10,18)),address0, (msg) => {
                     console.log('buy state: ', msg)
-                    Vue.set(this.log, this.log.length, 'state: ' + msg)
+                    Vue.set(this.log, this.log.length, 'state: ' + JSON.stringify(msg))
 
                 })
                 console.log('buyResult: ', buyResult)

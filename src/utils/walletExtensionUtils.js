@@ -21,7 +21,6 @@ export default class WalletExtensionUtils {
                 self.mapTokenSymbol = token.default
             })
         }
-        console.log('this.mapTokenSymbol: ', this.mapTokenSymbol)
         if (extension === extensionName.binanceExtension) {
             retryWithTimeout(function () {
                 if (window.BinanceChain) {
@@ -30,7 +29,6 @@ export default class WalletExtensionUtils {
                     window.BinanceChain.enable().then(async () => {
                         const addresses = await self.web3.eth.getAccounts()
                         self.address = addresses[0]
-
                         self.buyIdoContract = new self.web3.eth.Contract(idoDFYAbi, self.idoSmartcontract, {
                             transactionConfirmationBlocks: 1
                         })
@@ -134,18 +132,23 @@ export default class WalletExtensionUtils {
         let supportTokenAndBalance = []
         const tokenAddresses = await this.buyIdoContract.methods.getTokenSupport().call()
         for (const tokenAddress of tokenAddresses) {
+            console.log('tokenAddress: ', tokenAddress )
             const exchangeValue = await this.buyIdoContract.methods.exchangePairs(tokenAddress).call()
             const tokenContract = new this.web3.eth.Contract(erc20Abi, tokenAddress)
-            const userBalance = await tokenContract.methods.balanceOf(this.address).call()
-            if (userBalance.toString() !== '0') {
-                const tokenSymbol = await tokenContract.methods.symbol().call()
-                supportTokenAndBalance.push({
-                    tokenAddress: tokenAddress,
-                    tokenSymbol: tokenSymbol,
-                    outputDFYNumber: exchangeValue.output,
-                    inputTokenNumber: exchangeValue.input,
-                    balance: userBalance
-                })
+            try {
+                const userBalance = await tokenContract.methods.balanceOf(this.address).call()
+                if (userBalance.toString() !== '0') {
+                    const tokenSymbol = await tokenContract.methods.symbol().call()
+                    supportTokenAndBalance.push({
+                        tokenAddress: tokenAddress,
+                        tokenSymbol: tokenSymbol,
+                        outputDFYNumber: exchangeValue.output,
+                        inputTokenNumber: exchangeValue.input,
+                        balance: userBalance
+                    })
+                }
+            } catch (e) {
+                // donothing
             }
         }
         return supportTokenAndBalance

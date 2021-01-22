@@ -53,18 +53,22 @@
                     setTimeout(async () => {
                         console.log('getting info....')
                         try {
-                            self.extension.accountsChanged(function (log) {
-                                console.log('callback account change')
-                                console.log(log)
-                            })
-                            console.log('dasdasd')
-                            const balance = await self.extension.getSupportTokenAndBalance()
-                            console.log('balance: ', balance)
-                            const boughtAmount = await self.extension.getBoughtAmount()
-                            console.log('boughtAmount: ', boughtAmount)
-                            const remainDFY = await self.extension.getRemainDFY()
-                            console.log('remainDFY: ', remainDFY)
-                            return true
+                            if(self.extension.checkWrongNetwork()) {
+                                alert('Wrong network!')
+                            } else {
+                                self.extension.accountsChanged(function (log) {
+                                    console.log('callback account change')
+                                    console.log(log)
+                                })
+                                console.log('dasdasd')
+                                const balance = await self.extension.getSupportTokenAndBalance()
+                                console.log('balance: ', balance)
+                                const boughtAmount = await self.extension.getBoughtAmount()
+                                console.log('boughtAmount: ', boughtAmount)
+                                const remainDFY = await self.extension.getRemainDFY()
+                                console.log('remainDFY: ', remainDFY)
+                                return true
+                            }
                         } catch (e) {
                             console.log('retryTime: ', retryTime)
                             if(retryTime === 0) {

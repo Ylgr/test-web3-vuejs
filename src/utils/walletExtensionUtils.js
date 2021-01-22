@@ -27,6 +27,12 @@ export default class WalletExtensionUtils {
                     self.extension = window.BinanceChain
                     self.web3 = new Web3(window.BinanceChain)
                     window.BinanceChain.enable().then(async () => {
+                        const envCheck = process.env.VUE_APP_BLOCKCHAIN_NETWORK === 'TESTNET'
+                            ? !(window.BinanceChain.chainId === Web3.utils.numberToHex(chainId.bscTestnet))
+                            : !(window.BinanceChain.chainId === Web3.utils.numberToHex(chainId.bscMainnet))
+                        if (envCheck) {
+                            self.isWrongNetwork = true
+                        }
                         const addresses = await self.web3.eth.getAccounts()
                         self.address = addresses[0]
                         self.buyIdoContract = new self.web3.eth.Contract(idoDFYAbi, self.idoSmartcontract, {
@@ -46,17 +52,19 @@ export default class WalletExtensionUtils {
                     self.extension = window.ethereum
                     self.web3 = new Web3(window.ethereum)
                     window.ethereum.enable().then(async () => {
-                        if (
-                            !(
-                                // window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscMainnet)
+                        const envCheck = process.env.VUE_APP_BLOCKCHAIN_NETWORK === 'TESTNET'
+                            ? !(
                                 window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscTestnet)
-                                // || window.ethereum.chainId == chainId.bscMainnet
                                 || window.ethereum.chainId == chainId.bscTestnet
-                                // || window.ethereum.networkVersion == chainId.bscMainnet
                                 || window.ethereum.networkVersion == chainId.bscTestnet
                             )
-                        ) {
-                            alert('Please change network to Binance Smart chain!')
+                            : !(
+                                window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscMainnet)
+                                || window.ethereum.chainId == chainId.bscMainnet
+                                || window.ethereum.networkVersion == chainId.bscMainnet
+                            )
+                        if (envCheck) {
+                            self.isWrongNetwork = true
                         }
                         const addresses = await self.web3.eth.getAccounts()
                         self.address = addresses[0]
@@ -81,6 +89,10 @@ export default class WalletExtensionUtils {
             self.address = accounts[0]
             callback(accounts[0])
         });
+    }
+
+    checkWrongNetwork() {
+        return this.isWrongNetwork
     }
 
     isConnected() {

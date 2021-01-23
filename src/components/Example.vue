@@ -56,6 +56,8 @@
                             if(self.extension.checkWrongNetwork()) {
                                 alert('Wrong network!')
                             } else {
+                                const bnbBalance = await self.extension.getBnbBalance()
+                                console.log('getBnbBalance: ', bnbBalance)
                                 self.extension.accountsChanged(function (log) {
                                     console.log('callback account change')
                                     console.log(log)

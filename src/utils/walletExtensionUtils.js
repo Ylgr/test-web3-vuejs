@@ -3,7 +3,7 @@ import window from 'global'
 import chainId from '../contracts/chainId';
 import erc20Abi from '../contracts/erc20.abi';
 import idoDFYAbi from '../contracts/idoDFY.abi';
-import {buyIdoContractState, extensionName} from './constants';
+import {buyIdoContractState, extensionName, address0} from './constants';
 import {retryWithTimeout} from './utils';
 import {BigNumber} from 'bignumber.js';
 
@@ -140,17 +140,27 @@ export default class WalletExtensionUtils {
         return dfyContract.methods.balanceOf(this.idoSmartcontract).call()
     }
 
+    async getBnbBalance() {
+        return this.web3.eth.getBalance(this.address)
+    }
+
     async getSupportTokenAndBalance() {
         let supportTokenAndBalance = []
         const tokenAddresses = await this.buyIdoContract.methods.getTokenSupport().call()
         for (const tokenAddress of tokenAddresses) {
-            console.log('tokenAddress: ', tokenAddress )
             const exchangeValue = await this.buyIdoContract.methods.exchangePairs(tokenAddress).call()
-            const tokenContract = new this.web3.eth.Contract(erc20Abi, tokenAddress)
             try {
-                const userBalance = await tokenContract.methods.balanceOf(this.address).call()
+                let userBalance = 0
+                let tokenSymbol = 'BNB'
+                if(tokenAddress === address0) {
+                    userBalance = await this.getBnbBalance()
+                } else {
+                    const tokenContract = new this.web3.eth.Contract(erc20Abi, tokenAddress)
+                    userBalance = await tokenContract.methods.balanceOf(this.address).call()
+                    tokenSymbol = await tokenContract.methods.symbol().call()
+                }
+
                 if (userBalance.toString() !== '0') {
-                    const tokenSymbol = await tokenContract.methods.symbol().call()
                     supportTokenAndBalance.push({
                         tokenAddress: tokenAddress,
                         tokenSymbol: tokenSymbol,
@@ -163,7 +173,7 @@ export default class WalletExtensionUtils {
                 // donothing
             }
         }
-        return supportTokenAndBalance
+        return supportTokenAndBalance.sort(function(x,y){ return x.tokenAddress === address0 ? -1 : y.tokenAddress === address0 ? 1 : 0; });
     }
 
     async buyIdoContractCall(tokenAddress, amount, refAddress, callback) {

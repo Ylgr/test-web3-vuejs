@@ -12,3 +12,5 @@ export const extensionName = {
     binanceExtension: 'BINANCE_EXTENSION',
     trustWallet: 'TRUST_WALLET'
 }
+
+export const address0 = '0x0000000000000000000000000000000000000000'

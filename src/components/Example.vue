@@ -53,6 +53,10 @@
                     setTimeout(async () => {
                         console.log('getting info....')
                         try {
+                            console.log('self.extension.checkWrongNetwork(): ', self.extension.getWrongNetwork())
+                            Vue.set(self.log, self.log.length, 'self.extension.checkWrongNetwork():')
+                            Vue.set(self.log, self.log.length, JSON.stringify(self.extension.getWrongNetwork()))
+
                             if(self.extension.checkWrongNetwork()) {
                                 alert('Wrong network!')
                             } else {

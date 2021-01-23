@@ -66,6 +66,10 @@ export default class WalletExtensionUtils {
                         if (envCheck) {
                             self.isWrongNetwork = true
                         }
+                        self.wrongNetwork = {
+                            chainId: window.ethereum.chainId,
+                            networkVersion: window.ethereum.networkVersion
+                        }
                         const addresses = await self.web3.eth.getAccounts()
                         self.address = addresses[0]
 
@@ -89,6 +93,10 @@ export default class WalletExtensionUtils {
             self.address = accounts[0]
             callback(accounts[0])
         });
+    }
+
+    getWrongNetwork() {
+        return this.wrongNetwork
     }
 
     checkWrongNetwork() {
@@ -183,7 +191,7 @@ export default class WalletExtensionUtils {
         if(tokenAddress === address0) {
             try {
                 const self = this
-                const boughtResult = await this.buyIdoContract.methods.buyIdo(tokenAddress, amountInHex, refAddress)
+                const boughtResult = await this.buyIdoContract.methods.buyIdo(tokenAddress, 0, refAddress)
                     .send({from: this.address, value: amountInHex}, function (error, transactionHash) {
                         callback({
                             status: buyIdoContractState.buying,

@@ -173,54 +173,83 @@ export default class WalletExtensionUtils {
                 // donothing
             }
         }
-        return supportTokenAndBalance.sort(function(x,y){ return x.tokenAddress === address0 ? -1 : y.tokenAddress === address0 ? 1 : 0; });
+        return supportTokenAndBalance.sort(function (x, y) {
+            return x.tokenAddress === address0 ? -1 : y.tokenAddress === address0 ? 1 : 0;
+        });
     }
 
     async buyIdoContractCall(tokenAddress, amount, refAddress, callback) {
-        const tokenContract = new this.web3.eth.Contract(erc20Abi, tokenAddress)
         const amountInHex = '0x' + amount.toString(16)
-        try {
-            callback({
-                status: buyIdoContractState.approving
-            })
-            const allowanceNumber = await tokenContract.methods.allowance(this.address, this.idoSmartcontract).call()
-            if (!BigNumber(allowanceNumber).isGreaterThanOrEqualTo(BigNumber(amountInHex))) {
-                await tokenContract.methods.approve(this.idoSmartcontract, amountInHex)
-                    .send({from: this.address})
-            }
-            callback({
-                status: buyIdoContractState.approved
-            })
-        } catch (e) {
-            console.error(e.message)
-            callback({
-                status:buyIdoContractState.approveFailed
-            })
-            return e.message
-        }
-        try {
-            const self = this
-            const boughtResult = await this.buyIdoContract.methods.buyIdo(tokenAddress, amountInHex, refAddress)
-                .send({from: this.address}, function (error, transactionHash) {
-                    callback({
-                        status: buyIdoContractState.buying,
-                        transaction: {
-                            txid: transactionHash,
-                            address: self.address,
-                            token: self.mapTokenSymbol[Web3.utils.toChecksumAddress(tokenAddress)],
-                            amount: amount.dividedBy(Math.pow(10, 18)).toString()
-                        }
+        if(tokenAddress === address0) {
+            try {
+                const self = this
+                const boughtResult = await this.buyIdoContract.methods.buyIdo(tokenAddress, amountInHex, refAddress)
+                    .send({from: this.address, value: amountInHex}, function (error, transactionHash) {
+                        callback({
+                            status: buyIdoContractState.buying,
+                            transaction: {
+                                txid: transactionHash,
+                                address: self.address,
+                                token: self.mapTokenSymbol[Web3.utils.toChecksumAddress(tokenAddress)],
+                                amount: amount.dividedBy(Math.pow(10, 18)).toString()
+                            }
+                        })
                     })
+                callback({
+                    status: buyIdoContractState.bought
                 })
-            callback({
-                status: buyIdoContractState.bought
-            })
-            return boughtResult
-        } catch (e) {
-            callback({
-                status: buyIdoContractState.buyFailed
-            })
-            return e.message
+                return boughtResult
+            } catch (e) {
+                callback({
+                    status: buyIdoContractState.buyFailed
+                })
+                return e.message
+            }
+        } else {
+            const tokenContract = new this.web3.eth.Contract(erc20Abi, tokenAddress)
+            try {
+                callback({
+                    status: buyIdoContractState.approving
+                })
+                const allowanceNumber = await tokenContract.methods.allowance(this.address, this.idoSmartcontract).call()
+                if (!BigNumber(allowanceNumber).isGreaterThanOrEqualTo(BigNumber(amountInHex))) {
+                    await tokenContract.methods.approve(this.idoSmartcontract, amountInHex)
+                        .send({from: this.address})
+                }
+                callback({
+                    status: buyIdoContractState.approved
+                })
+            } catch (e) {
+                console.error(e.message)
+                callback({
+                    status:buyIdoContractState.approveFailed
+                })
+                return e.message
+            }
+            try {
+                const self = this
+                const boughtResult = await this.buyIdoContract.methods.buyIdo(tokenAddress, amountInHex, refAddress)
+                    .send({from: this.address}, function (error, transactionHash) {
+                        callback({
+                            status: buyIdoContractState.buying,
+                            transaction: {
+                                txid: transactionHash,
+                                address: self.address,
+                                token: self.mapTokenSymbol[Web3.utils.toChecksumAddress(tokenAddress)],
+                                amount: amount.dividedBy(Math.pow(10, 18)).toString()
+                            }
+                        })
+                    })
+                callback({
+                    status: buyIdoContractState.bought
+                })
+                return boughtResult
+            } catch (e) {
+                callback({
+                    status: buyIdoContractState.buyFailed
+                })
+                return e.message
+            }
         }
     }
 }

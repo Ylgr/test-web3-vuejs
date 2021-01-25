@@ -23,7 +23,7 @@ export default class WalletExtensionUtils {
         }
         if (extension === extensionName.binanceExtension) {
             retryWithTimeout(
-                function() {
+                function () {
                     if (window.BinanceChain) {
                         self.extension = window.BinanceChain
                         self.web3 = new Web3(window.BinanceChain)
@@ -58,7 +58,7 @@ export default class WalletExtensionUtils {
                             })
                     } else throw new Error('Detect Binance Extension failed!')
                 },
-                function() {
+                function () {
                     alert('You need to have Binance Extension first')
                 },
                 5,
@@ -69,7 +69,7 @@ export default class WalletExtensionUtils {
             extension === extensionName.trustWallet
         ) {
             retryWithTimeout(
-                function() {
+                function () {
                     if (window.ethereum) {
                         self.extension = window.ethereum
                         self.web3 = new Web3(window.ethereum)
@@ -118,7 +118,7 @@ export default class WalletExtensionUtils {
                             })
                     } else throw new Error('Detect Wallet failed!')
                 },
-                function() {
+                function () {
                     alert('Detect Wallet failed!')
                 },
                 5,
@@ -129,7 +129,7 @@ export default class WalletExtensionUtils {
 
     accountsChanged(callback) {
         const self = this
-        this.extension.on('accountsChanged', function(accounts) {
+        this.extension.on('accountsChanged', function (accounts) {
             self.address = accounts[0]
             callback(accounts[0])
         })
@@ -150,12 +150,12 @@ export default class WalletExtensionUtils {
     async isBuyingOpen() {
         let reason = []
         let isOpen = true
-        const currentTime = (new Date().getTime())/1000
+        const currentTime = (new Date().getTime()) / 1000
         const startTime = await this.getStartTime()
         const endTime = await this.getEndTime()
         const isPause = await this.isPauseStatus()
         const isPublic = await this.isPublicOpen()
-        if(currentTime < startTime) {
+        if (currentTime < startTime) {
             isOpen = false
             reason.push('Sales time is not started.')
         }
@@ -163,13 +163,13 @@ export default class WalletExtensionUtils {
             isOpen = false
             reason.push('Sales time is not ended.')
         }
-        if(isPause.toString() === '1') {
+        if (isPause.toString() === '1') {
             isOpen = false
             reason.push('Contract is pause.')
         }
-        if(!isPublic) {
+        if (!isPublic) {
             const isWhiteList = await this.checkWhiteList()
-            if(!isWhiteList) {
+            if (!isWhiteList) {
                 isOpen = false
                 reason.push('Public sales still not open.')
             }
@@ -272,41 +272,40 @@ export default class WalletExtensionUtils {
             .getTokenSupport()
             .call()
         for (const tokenAddress of tokenAddresses) {
-            if (!tokenAddress) {
-                const exchangeValue = await this.buyIdoContract.methods
-                    .exchangePairs(tokenAddress)
-                    .call()
-                try {
-                    let userBalance = 0
-                    let tokenSymbol = 'BNB'
-                    if (tokenAddress === address0) {
-                        userBalance = await this.getBnbBalance()
-                    } else {
-                        const tokenContract = new this.web3.eth.Contract(
-                            erc20Abi,
-                            tokenAddress
-                        )
-                        userBalance = await tokenContract.methods
-                            .balanceOf(this.address)
-                            .call()
-                        tokenSymbol = await tokenContract.methods.symbol().call()
-                    }
-
-                    if (userBalance.toString() !== '0') {
-                        supportTokenAndBalance.push({
-                            tokenAddress: tokenAddress,
-                            tokenSymbol: tokenSymbol,
-                            outputDFYNumber: exchangeValue.output,
-                            inputTokenNumber: exchangeValue.input,
-                            balance: userBalance
-                        })
-                    }
-                } catch (e) {
-                    // donothing
+            const exchangeValue = await this.buyIdoContract.methods
+                .exchangePairs(tokenAddress)
+                .call()
+            try {
+                let userBalance = 0
+                let tokenSymbol = 'BNB'
+                if (tokenAddress === address0) {
+                    userBalance = await this.getBnbBalance()
+                } else {
+                    const tokenContract = new this.web3.eth.Contract(
+                        erc20Abi,
+                        tokenAddress
+                    )
+                    userBalance = await tokenContract.methods
+                        .balanceOf(this.address)
+                        .call()
+                    tokenSymbol = await tokenContract.methods.symbol().call()
                 }
+
+                if (userBalance.toString() !== '0') {
+                    supportTokenAndBalance.push({
+                        tokenAddress: tokenAddress,
+                        tokenSymbol: tokenSymbol,
+                        outputDFYNumber: exchangeValue.output,
+                        inputTokenNumber: exchangeValue.input,
+                        balance: userBalance
+                    })
+                }
+            } catch (e) {
+                // donothing
             }
         }
-        return supportTokenAndBalance.sort(function(x, y) {
+
+        return supportTokenAndBalance.sort(function (x, y) {
             return x.tokenAddress === address0
                 ? -1
                 : y.tokenAddress === address0
@@ -314,9 +313,10 @@ export default class WalletExtensionUtils {
                     : 0
         })
     }
+
     async buyIdoContractCall(tokenAddress, amount, refAddress, callback) {
         const amountInHex = '0x' + amount.toString(16)
-        if(tokenAddress === address0) {
+        if (tokenAddress === address0) {
             try {
                 const self = this
                 const boughtResult = await this.buyIdoContract.methods.buyIdo(tokenAddress, 0, refAddress)
@@ -358,7 +358,7 @@ export default class WalletExtensionUtils {
             } catch (e) {
                 console.error(e.message)
                 callback({
-                    status:buyIdoContractState.approveFailed
+                    status: buyIdoContractState.approveFailed
                 })
                 return e.message
             }

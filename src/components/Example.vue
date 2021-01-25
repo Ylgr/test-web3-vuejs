@@ -16,6 +16,7 @@
     import {extensionName} from '../utils/constants';
     import {isMetamaskAvailable, isBinanceExtensionAvailable, isTrustWalletAvailable} from '../utils/utils';
     import { BigNumber } from 'bignumber.js';
+    import supportToken from '../tokens/supportToken';
 
     export default {
         name: 'Example',
@@ -47,21 +48,19 @@
                 Vue.set(this.log, this.log.length, JSON.stringify(window.Web3))
 
                 this.extension = new WalletExtensionUtils(extension)
-
+                console.log('supportToken: ', Object.keys(supportToken))
 
                 function getInfo(self, retryTime) {
                     setTimeout(async () => {
                         console.log('getting info....')
                         try {
-                            console.log('self.extension.checkWrongNetwork(): ', self.extension.getWrongNetwork())
-                            Vue.set(self.log, self.log.length, 'self.extension.checkWrongNetwork():')
-                            Vue.set(self.log, self.log.length, JSON.stringify(self.extension.getWrongNetwork()))
-
                             if(self.extension.checkWrongNetwork()) {
                                 alert('Wrong network!')
                             } else {
-                                const bnbBalance = await self.extension.getBnbBalance()
+                                console.time('supportToken');
+                                const bnbBalance = await self.extension.getBalance(Object.keys(supportToken))
                                 console.log('getBnbBalance: ', bnbBalance)
+                                console.timeEnd('supportToken')
                                 self.extension.accountsChanged(function (log) {
                                     console.log('callback account change')
                                     console.log(log)

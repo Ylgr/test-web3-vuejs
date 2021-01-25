@@ -12,91 +12,127 @@ export default class WalletExtensionUtils {
         this.web3 = null
         this.idoSmartcontract = process.env.VUE_APP_IDO_DFY_SMART_CONTRACT_ADDRESS
         let self = this
-        if(process.env.VUE_APP_BLOCKCHAIN_NETWORK === 'TESTNET') {
-            import('../tokens/supportTokenTest').then(token => {
+        if (process.env.VUE_APP_BLOCKCHAIN_NETWORK === 'TESTNET') {
+            import('../tokens/supportTokenTest').then((token) => {
                 self.mapTokenSymbol = token.default
             })
         } else {
-            import('../tokens/supportToken').then(token => {
+            import('../tokens/supportToken').then((token) => {
                 self.mapTokenSymbol = token.default
             })
         }
         if (extension === extensionName.binanceExtension) {
-            retryWithTimeout(function () {
-                if (window.BinanceChain) {
-                    self.extension = window.BinanceChain
-                    self.web3 = new Web3(window.BinanceChain)
-                    window.BinanceChain.enable().then(async () => {
-                        const envCheck = process.env.VUE_APP_BLOCKCHAIN_NETWORK === 'TESTNET'
-                            ? !(window.BinanceChain.chainId === Web3.utils.numberToHex(chainId.bscTestnet))
-                            : !(window.BinanceChain.chainId === Web3.utils.numberToHex(chainId.bscMainnet))
-                        if (envCheck) {
-                            self.isWrongNetwork = true
-                        }
-                        const addresses = await self.web3.eth.getAccounts()
-                        self.address = addresses[0]
-                        self.buyIdoContract = new self.web3.eth.Contract(idoDFYAbi, self.idoSmartcontract, {
-                            transactionConfirmationBlocks: 1
-                        })
-                    }).catch(error => {
-                        console.error(error.message)
-                        self.web3 = null
-                    })
-                } else throw new Error('Detect Binance Extension failed!')
-            }, function () {
-                alert('You need to have Binance Extension first')
-            }, 5, 500)
-        } else if (extension === extensionName.metamask || extension === extensionName.trustWallet) {
-            retryWithTimeout(function () {
-                if (window.ethereum) {
-                    self.extension = window.ethereum
-                    self.web3 = new Web3(window.ethereum)
-                    window.ethereum.enable().then(async () => {
-                        const envCheck = process.env.VUE_APP_BLOCKCHAIN_NETWORK === 'TESTNET'
-                            ? !(
-                                window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscTestnet)
-                                || window.ethereum.chainId == chainId.bscTestnet
-                                || window.ethereum.networkVersion == chainId.bscTestnet
-                            )
-                            : !(
-                                window.ethereum.chainId === Web3.utils.numberToHex(chainId.bscMainnet)
-                                || window.ethereum.chainId == chainId.bscMainnet
-                                || window.ethereum.networkVersion == chainId.bscMainnet
-                            )
-                        if (envCheck) {
-                            self.isWrongNetwork = true
-                        }
-                        self.wrongNetwork = {
-                            chainId: window.ethereum.chainId,
-                            networkVersion: window.ethereum.networkVersion
-                        }
-                        const addresses = await self.web3.eth.getAccounts()
-                        self.address = addresses[0]
+            retryWithTimeout(
+                function() {
+                    if (window.BinanceChain) {
+                        self.extension = window.BinanceChain
+                        self.web3 = new Web3(window.BinanceChain)
+                        window.BinanceChain.enable()
+                            .then(async () => {
+                                const envCheck =
+                                    process.env.VUE_APP_BLOCKCHAIN_NETWORK === 'TESTNET'
+                                        ? !(
+                                            window.BinanceChain.chainId ===
+                                            Web3.utils.numberToHex(chainId.bscTestnet)
+                                        )
+                                        : !(
+                                            window.BinanceChain.chainId ===
+                                            Web3.utils.numberToHex(chainId.bscMainnet)
+                                        )
+                                if (envCheck) {
+                                    self.isWrongNetwork = true
+                                }
+                                const addresses = await self.web3.eth.getAccounts()
+                                self.address = addresses[0]
+                                self.buyIdoContract = new self.web3.eth.Contract(
+                                    idoDFYAbi,
+                                    self.idoSmartcontract,
+                                    {
+                                        transactionConfirmationBlocks: 1
+                                    }
+                                )
+                            })
+                            .catch((error) => {
+                                console.error(error.message)
+                                self.web3 = null
+                            })
+                    } else throw new Error('Detect Binance Extension failed!')
+                },
+                function() {
+                    alert('You need to have Binance Extension first')
+                },
+                5,
+                500
+            )
+        } else if (
+            extension === extensionName.metamask ||
+            extension === extensionName.trustWallet
+        ) {
+            retryWithTimeout(
+                function() {
+                    if (window.ethereum) {
+                        self.extension = window.ethereum
+                        self.web3 = new Web3(window.ethereum)
+                        window.ethereum
+                            .enable()
+                            .then(async () => {
+                                const envCheck =
+                                    process.env.VUE_APP_BLOCKCHAIN_NETWORK === 'TESTNET'
+                                        ? !(
+                                            window.ethereum.chainId ===
+                                            Web3.utils.numberToHex(chainId.bscTestnet) ||
+                                            window.ethereum.chainId == chainId.bscTestnet ||
+                                            window.ethereum.networkVersion == chainId.bscTestnet ||
+                                            (!window.ethereum.chainId &&
+                                                !window.ethereum.networkVersion)
+                                        )
+                                        : !(
+                                            window.ethereum.chainId ===
+                                            Web3.utils.numberToHex(chainId.bscMainnet) ||
+                                            window.ethereum.chainId == chainId.bscMainnet ||
+                                            window.ethereum.networkVersion == chainId.bscMainnet ||
+                                            (!window.ethereum.chainId &&
+                                                !window.ethereum.networkVersion)
+                                        )
+                                if (envCheck) {
+                                    self.isWrongNetwork = true
+                                }
+                                self.wrongNetwork = {
+                                    chainId: window.ethereum.chainId,
+                                    networkVersion: window.ethereum.networkVersion
+                                }
+                                const addresses = await self.web3.eth.getAccounts()
+                                self.address = addresses[0]
 
-                        self.buyIdoContract = new self.web3.eth.Contract(idoDFYAbi, self.idoSmartcontract, {
-                            transactionConfirmationBlocks: 1
-                        })
-                    }).catch(error => {
-                        console.error(error.message)
-                        self.web3 = null
-                    })
-                } else throw new Error('Detect Wallet failed!')
-            }, function () {
-                alert('Detect Wallet failed!')
-            }, 5, 500)
+                                self.buyIdoContract = new self.web3.eth.Contract(
+                                    idoDFYAbi,
+                                    self.idoSmartcontract,
+                                    {
+                                        transactionConfirmationBlocks: 1
+                                    }
+                                )
+                            })
+                            .catch((error) => {
+                                console.error(error.message)
+                                self.web3 = null
+                            })
+                    } else throw new Error('Detect Wallet failed!')
+                },
+                function() {
+                    alert('Detect Wallet failed!')
+                },
+                5,
+                500
+            )
         }
     }
 
     accountsChanged(callback) {
         const self = this
-        this.extension.on('accountsChanged', function (accounts) {
+        this.extension.on('accountsChanged', function(accounts) {
             self.address = accounts[0]
             callback(accounts[0])
-        });
-    }
-
-    getWrongNetwork() {
-        return this.wrongNetwork
+        })
     }
 
     checkWrongNetwork() {
@@ -144,7 +180,10 @@ export default class WalletExtensionUtils {
     }
 
     async getRemainDFY() {
-        const dfyContract = new this.web3.eth.Contract(erc20Abi, process.env.VUE_APP_DFY_SMART_CONTRACT_ADDRESS)
+        const dfyContract = new this.web3.eth.Contract(
+            erc20Abi,
+            process.env.VUE_APP_DFY_SMART_CONTRACT_ADDRESS
+        )
         return dfyContract.methods.balanceOf(this.idoSmartcontract).call()
     }
 
@@ -152,40 +191,88 @@ export default class WalletExtensionUtils {
         return this.web3.eth.getBalance(this.address)
     }
 
-    async getSupportTokenAndBalance() {
-        let supportTokenAndBalance = []
-        const tokenAddresses = await this.buyIdoContract.methods.getTokenSupport().call()
-        for (const tokenAddress of tokenAddresses) {
-            const exchangeValue = await this.buyIdoContract.methods.exchangePairs(tokenAddress).call()
-            try {
-                let userBalance = 0
-                let tokenSymbol = 'BNB'
-                if(tokenAddress === address0) {
-                    userBalance = await this.getBnbBalance()
-                } else {
-                    const tokenContract = new this.web3.eth.Contract(erc20Abi, tokenAddress)
-                    userBalance = await tokenContract.methods.balanceOf(this.address).call()
-                    tokenSymbol = await tokenContract.methods.symbol().call()
-                }
-
-                if (userBalance.toString() !== '0') {
-                    supportTokenAndBalance.push({
+    async getBalance(tokenAddresses) {
+        let walletBalance = []
+        const bnbBalance = await this.getBnbBalance()
+        walletBalance.push({
+            tokenAddress: address0,
+            tokenSymbol: 'BNB',
+            balance: bnbBalance
+        })
+        const tokenBalance = await Promise.all(
+            tokenAddresses
+                .filter((e) => e !== address0)
+                .map(async (tokenAddress) => {
+                    const tokenContract = new this.web3.eth.Contract(
+                        erc20Abi,
+                        tokenAddress
+                    )
+                    const userBalancePromise = tokenContract.methods
+                        .balanceOf(this.address)
+                        .call()
+                    const tokenSymbolPromise = tokenContract.methods.symbol().call()
+                    const [tokenSymbol, userBalance] = await Promise.all([
+                        tokenSymbolPromise,
+                        userBalancePromise
+                    ])
+                    return {
                         tokenAddress: tokenAddress,
                         tokenSymbol: tokenSymbol,
-                        outputDFYNumber: exchangeValue.output,
-                        inputTokenNumber: exchangeValue.input,
                         balance: userBalance
-                    })
-                }
-            } catch (e) {
-                // donothing
-            }
-        }
-        return supportTokenAndBalance.sort(function (x, y) {
-            return x.tokenAddress === address0 ? -1 : y.tokenAddress === address0 ? 1 : 0;
-        });
+                    }
+                })
+        )
+        return walletBalance.concat(tokenBalance)
     }
 
+    async getSupportTokenAndBalance() {
+        let supportTokenAndBalance = []
+        const tokenAddresses = await this.buyIdoContract.methods
+            .getTokenSupport()
+            .call()
+        for (const tokenAddress of tokenAddresses) {
+            if (!tokenAddress) {
+                const exchangeValue = await this.buyIdoContract.methods
+                    .exchangePairs(tokenAddress)
+                    .call()
+                try {
+                    let userBalance = 0
+                    let tokenSymbol = 'BNB'
+                    if (tokenAddress === address0) {
+                        userBalance = await this.getBnbBalance()
+                    } else {
+                        const tokenContract = new this.web3.eth.Contract(
+                            erc20Abi,
+                            tokenAddress
+                        )
+                        userBalance = await tokenContract.methods
+                            .balanceOf(this.address)
+                            .call()
+                        tokenSymbol = await tokenContract.methods.symbol().call()
+                    }
+
+                    if (userBalance.toString() !== '0') {
+                        supportTokenAndBalance.push({
+                            tokenAddress: tokenAddress,
+                            tokenSymbol: tokenSymbol,
+                            outputDFYNumber: exchangeValue.output,
+                            inputTokenNumber: exchangeValue.input,
+                            balance: userBalance
+                        })
+                    }
+                } catch (e) {
+                    // donothing
+                }
+            }
+        }
+        return supportTokenAndBalance.sort(function(x, y) {
+            return x.tokenAddress === address0
+                ? -1
+                : y.tokenAddress === address0
+                    ? 1
+                    : 0
+        })
+    }
     async buyIdoContractCall(tokenAddress, amount, refAddress, callback) {
         const amountInHex = '0x' + amount.toString(16)
         if(tokenAddress === address0) {
@@ -199,7 +286,7 @@ export default class WalletExtensionUtils {
                                 txid: transactionHash,
                                 address: self.address,
                                 token: self.mapTokenSymbol[Web3.utils.toChecksumAddress(tokenAddress)],
-                                amount: amount.dividedBy(Math.pow(10, 18)).toString()
+                                amount: amountInHex
                             }
                         })
                     })
@@ -244,7 +331,7 @@ export default class WalletExtensionUtils {
                                 txid: transactionHash,
                                 address: self.address,
                                 token: self.mapTokenSymbol[Web3.utils.toChecksumAddress(tokenAddress)],
-                                amount: amount.dividedBy(Math.pow(10, 18)).toString()
+                                amount: amountInHex
                             }
                         })
                     })

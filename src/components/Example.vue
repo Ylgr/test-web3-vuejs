@@ -57,10 +57,13 @@
                             if(self.extension.checkWrongNetwork()) {
                                 alert('Wrong network!')
                             } else {
-                                console.time('supportToken');
-                                const bnbBalance = await self.extension.getBalance(Object.keys(supportToken))
-                                console.log('getBnbBalance: ', bnbBalance)
-                                console.timeEnd('supportToken')
+                                console.log('pause status')
+                                const isBuyingOpen = await self.extension.isBuyingOpen()
+                                console.log('isBuyingOpen: ', isBuyingOpen)
+                                // console.time('supportToken');
+                                // const bnbBalance = await self.extension.getBalance(Object.keys(supportToken))
+                                // console.log('getBnbBalance: ', bnbBalance)
+                                // console.timeEnd('supportToken')
                                 self.extension.accountsChanged(function (log) {
                                     console.log('callback account change')
                                     console.log(log)

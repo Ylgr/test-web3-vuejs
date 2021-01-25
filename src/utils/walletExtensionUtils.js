@@ -147,6 +147,31 @@ export default class WalletExtensionUtils {
         return this.address
     }
 
+    async isBuyingOpen() {
+        let reason = []
+        let isOpen = true
+        const currentTime = (new Date().getTime())/1000
+        const startTime = await this.getStartTime()
+        const endTime = await this.getEndTime()
+        const isPause = await this.isPauseStatus()
+        if(currentTime < startTime) {
+            isOpen = false
+            reason.push('Sales time is not started.')
+        }
+        if (currentTime > endTime) {
+            isOpen = false
+            reason.push('Sales time is not ended.')
+        }
+        if(isPause.toString() === '1') {
+            isOpen = false
+            reason.push('Contract is pause.')
+        }
+        return {
+            status: isOpen,
+            reason: reason
+        }
+    }
+
     async getStartTime() {
         return this.buyIdoContract.methods.start().call()
     }
@@ -168,7 +193,7 @@ export default class WalletExtensionUtils {
     }
 
     async isPauseStatus() {
-        return this.buyIdoContract.methods.state().call()
+        return this.buyIdoContract.methods.stage().call()
     }
 
     async getCurrentReferralAmount() {

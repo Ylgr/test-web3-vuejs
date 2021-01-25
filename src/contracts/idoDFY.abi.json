@@ -576,7 +576,7 @@
     ],
     "name": "buyIdo",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -624,6 +624,13 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "withdrawnBNB",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

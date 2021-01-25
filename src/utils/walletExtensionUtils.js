@@ -372,7 +372,7 @@ export default class WalletExtensionUtils {
                                 txid: transactionHash,
                                 address: self.address,
                                 token: self.mapTokenSymbol[Web3.utils.toChecksumAddress(tokenAddress)],
-                                amount: amountInHex
+                                amount: amount
                             }
                         })
                     })

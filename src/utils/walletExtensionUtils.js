@@ -154,6 +154,7 @@ export default class WalletExtensionUtils {
         const startTime = await this.getStartTime()
         const endTime = await this.getEndTime()
         const isPause = await this.isPauseStatus()
+        const isPublic = await this.isPublicOpen()
         if(currentTime < startTime) {
             isOpen = false
             reason.push('Sales time is not started.')
@@ -165,6 +166,13 @@ export default class WalletExtensionUtils {
         if(isPause.toString() === '1') {
             isOpen = false
             reason.push('Contract is pause.')
+        }
+        if(!isPublic) {
+            const isWhiteList = await this.checkWhiteList()
+            if(!isWhiteList) {
+                isOpen = false
+                reason.push('Public sales still not open.')
+            }
         }
         return {
             status: isOpen,
@@ -194,6 +202,14 @@ export default class WalletExtensionUtils {
 
     async isPauseStatus() {
         return this.buyIdoContract.methods.stage().call()
+    }
+
+    async isPublicOpen() {
+        return this.buyIdoContract.methods.isPublic().call()
+    }
+
+    async checkWhiteList() {
+        return this.buyIdoContract.methods.whitelist(this.address).call()
     }
 
     async getCurrentReferralAmount() {

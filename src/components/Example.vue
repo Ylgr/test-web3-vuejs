@@ -100,7 +100,7 @@
                 console.log('isConnected: ',this.extension.isConnected())
                 Vue.set(this.log, this.log.length, 'isConnected: ' + this.extension.isConnected())
                 const address0 = '0x0000000000000000000000000000000000000000'
-                const buyResult = await this.extension.buyIdoContractCall('0xd66c6b4f0be8ce5b39d52e0fd1344c389929b378',BigNumber(0.01*Math.pow(10,18)),address0, (msg) => {
+                const buyResult = await this.extension.buyIdoContractCall('0xd66c6b4f0be8ce5b39d52e0fd1344c389929b378',BigNumber(0.05*Math.pow(10,18)),address0, (msg) => {
                     console.log('buy state: ', msg)
                     Vue.set(this.log, this.log.length, 'state: ' + JSON.stringify(msg))
 

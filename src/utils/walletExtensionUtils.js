@@ -251,7 +251,7 @@ export default class WalletExtensionUtils {
                     const userBalancePromise = tokenContract.methods
                         .balanceOf(this.address)
                         .call()
-                    const tokenSymbolPromise = tokenContract.methods.symbol().call()
+                    const tokenSymbolPromise = this.mapTokenSymbol[tokenAddress]
                     const [tokenSymbol, userBalance] = await Promise.all([
                         tokenSymbolPromise,
                         userBalancePromise
@@ -267,43 +267,36 @@ export default class WalletExtensionUtils {
     }
 
     async getSupportTokenAndBalance() {
-        let supportTokenAndBalance = []
         const tokenAddresses = await this.buyIdoContract.methods
             .getTokenSupport()
             .call()
-        for (const tokenAddress of tokenAddresses) {
+        const supportTokenAndBalance = await Promise.all(tokenAddresses.map(async (tokenAddress) => {
             const exchangeValue = await this.buyIdoContract.methods
                 .exchangePairs(tokenAddress)
                 .call()
-            try {
-                let userBalance = 0
-                let tokenSymbol = 'BNB'
-                if (tokenAddress === address0) {
-                    userBalance = await this.getBnbBalance()
-                } else {
-                    const tokenContract = new this.web3.eth.Contract(
-                        erc20Abi,
-                        tokenAddress
-                    )
-                    userBalance = await tokenContract.methods
-                        .balanceOf(this.address)
-                        .call()
-                    tokenSymbol = await tokenContract.methods.symbol().call()
-                }
-
-                if (userBalance.toString() !== '0') {
-                    supportTokenAndBalance.push({
-                        tokenAddress: tokenAddress,
-                        tokenSymbol: tokenSymbol,
-                        outputDFYNumber: exchangeValue.output,
-                        inputTokenNumber: exchangeValue.input,
-                        balance: userBalance
-                    })
-                }
-            } catch (e) {
-                // donothing
+            let userBalance = 0
+            let tokenSymbol = 'BNB'
+            if (tokenAddress === address0) {
+                userBalance = await this.getBnbBalance()
+            } else {
+                const tokenContract = new this.web3.eth.Contract(
+                    erc20Abi,
+                    tokenAddress
+                )
+                userBalance = await tokenContract.methods
+                    .balanceOf(this.address)
+                    .call()
+                tokenSymbol = this.mapTokenSymbol[tokenAddress]
             }
-        }
+
+            return {
+                tokenAddress: tokenAddress,
+                tokenSymbol: tokenSymbol,
+                outputDFYNumber: exchangeValue.output,
+                inputTokenNumber: exchangeValue.input,
+                balance: userBalance
+            }
+        }))
 
         return supportTokenAndBalance.sort(function (x, y) {
             return x.tokenAddress === address0
@@ -327,7 +320,7 @@ export default class WalletExtensionUtils {
                                 txid: transactionHash,
                                 address: self.address,
                                 token: self.mapTokenSymbol[Web3.utils.toChecksumAddress(tokenAddress)],
-                                amount: BigNumber(amount).dividedBy(Math.pow(10,18)).toString()
+                                amount: BigNumber(amount).dividedBy(Math.pow(10, 18)).toString()
                             }
                         })
                     })
@@ -372,7 +365,7 @@ export default class WalletExtensionUtils {
                                 txid: transactionHash,
                                 address: self.address,
                                 token: self.mapTokenSymbol[Web3.utils.toChecksumAddress(tokenAddress)],
-                                amount: BigNumber(amount).dividedBy(Math.pow(10,18)).toString()
+                                amount: BigNumber(amount).dividedBy(Math.pow(10, 18)).toString()
                             }
                         })
                     })

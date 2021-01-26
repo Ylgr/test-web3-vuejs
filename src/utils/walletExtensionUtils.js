@@ -327,7 +327,7 @@ export default class WalletExtensionUtils {
                                 txid: transactionHash,
                                 address: self.address,
                                 token: self.mapTokenSymbol[Web3.utils.toChecksumAddress(tokenAddress)],
-                                amount: amountInHex
+                                amount: BigNumber(amount).dividedBy(Math.pow(10,18)).toString()
                             }
                         })
                     })
@@ -372,7 +372,7 @@ export default class WalletExtensionUtils {
                                 txid: transactionHash,
                                 address: self.address,
                                 token: self.mapTokenSymbol[Web3.utils.toChecksumAddress(tokenAddress)],
-                                amount: amount
+                                amount: BigNumber(amount).dividedBy(Math.pow(10,18)).toString()
                             }
                         })
                     })

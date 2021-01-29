@@ -112,10 +112,6 @@ export default class WalletExtensionUtils {
                                     }
                                 )
                             })
-                            .catch((error) => {
-                                console.error(error.message)
-                                self.web3 = null
-                            })
                     } else throw new Error('Detect Wallet failed!')
                 },
                 function () {
@@ -145,6 +141,10 @@ export default class WalletExtensionUtils {
 
     getCurrentAddress() {
         return this.address
+    }
+
+    getWeb3() {
+        return this.web3
     }
 
     async isBuyingOpen() {
